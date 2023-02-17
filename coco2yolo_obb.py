@@ -106,12 +106,12 @@ def parseJson(filepath):
 def yoloString(points, cat, diff):
     ret = ""
     for p in points:
-        ret += str(p[0]) + ", " + str(p[1]) + ", "
-    ret += cat + ", " + str(diff) + "\n"
+        ret += str(p[0]) + " " + str(p[1]) + " "
+    ret += cat + " " + str(diff) + "\n"
     return ret
 
 def outputYolo(outpath, json_paths):
-    outpath += "/annotations"
+    outpath += "/labelTxt"
     try:
         os.mkdir(outpath)
     except OSError as error:
@@ -169,21 +169,20 @@ def splitDataset(outpath, shuffle = True, train_ratio=70, valid_ratio=20, test_r
     
     try:
         os.mkdir(train_path)
-        os.mkdir(train_path + "/annotations")
+        os.mkdir(train_path + "/labelTxt")
         os.mkdir(train_path + "/images")
         
         os.mkdir(valid_path)
-        os.mkdir(valid_path + "/annotations")
+        os.mkdir(valid_path + "/labelTxt")
         os.mkdir(valid_path + "/images")
         
         os.mkdir(test_path)
-        os.mkdir(test_path + "/annotations")
+        os.mkdir(test_path + "/labelTxt")
         os.mkdir(test_path + "/images")
     except OSError as error:
         print(error)
     
     json_paths, img_paths, txt_paths = crawlPaths(outpath)
-    
     if (len(img_paths) != len(txt_paths)):
         raise Exception("Number of annotations does not match number of images")
     
@@ -205,7 +204,7 @@ def splitDataset(outpath, shuffle = True, train_ratio=70, valid_ratio=20, test_r
         img_path = img_paths.pop()
         txt_filename = os.path.split(txt_path)[-1]
         img_filename = os.path.split(img_path)[-1]
-        move_path = train_path + "/annotations"
+        move_path = train_path + "/labelTxt"
         shutil.move(txt_path, move_path)
         move_path = train_path + "/images"
         shutil.move(img_path, move_path)
@@ -215,7 +214,7 @@ def splitDataset(outpath, shuffle = True, train_ratio=70, valid_ratio=20, test_r
         img_path = img_paths.pop()
         txt_filename = os.path.split(txt_path)[-1]
         img_filename = os.path.split(img_path)[-1]
-        move_path = valid_path + "/annotations"
+        move_path = valid_path + "/labelTxt"
         shutil.move(txt_path, move_path)
         move_path = valid_path + "/images"
         shutil.move(img_path, move_path)
@@ -225,23 +224,32 @@ def splitDataset(outpath, shuffle = True, train_ratio=70, valid_ratio=20, test_r
         img_path = img_paths.pop()
         txt_filename = os.path.split(txt_path)[-1]
         img_filename = os.path.split(img_path)[-1]
-        move_path = test_path + "/annotations"
+        move_path = test_path + "/labelTxt"
         shutil.move(txt_path, move_path)
         move_path = test_path + "/images"
         shutil.move(img_path, move_path)
 
     try:
-        os.rmdir(outpath + "/annotations")
+        os.rmdir(outpath + "/labelTxt")
         os.rmdir(outpath + "/images")
     except OSError as error:
         print(error)
-    
+
+def outputImgNameFile(outpath, img_paths):
+    lines = []
+    for img in img_paths:
+        filename = os.path.split(img)[-1][:-3]
+        lines.append(filename + "\n")
+    with open(os.path.join(outpath, 'valid', 'imgnamefile.txt'), "w") as f:
+                f.writelines(lines)
+
 def run():
     json_paths, img_paths, txt_paths = crawlPaths('./VIP Data Exports')
     outpath = makeOutpath("./dataset")
     outputImgs(outpath, img_paths)
     outputYolo(outpath, json_paths)
     splitDataset(outpath)
+    outputImgNameFile(outpath, img_paths)
     
 run()
 
