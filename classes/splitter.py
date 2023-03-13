@@ -61,7 +61,7 @@ class Splitter:
         returns: None
         """
         if train_ratio + valid_ratio + test_ratio != 100:
-            raise Exception("Ratio split must add up to 100")
+            raise Exception("Error: Ratio split must add up to 100")
 
         self.json_paths, self.img_paths, self.txt_paths = self.crawler.crawlPaths()
         if len(self.img_paths) != len(self.txt_paths):

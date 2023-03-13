@@ -18,7 +18,8 @@ class Crawler:
 
     def crawlPaths(self):
         """
-        Crawls the initialized directory for json, image and txt files.
+        Crawls the initialized directory for json, image and txt files. Ignores all directories
+        with the string "debug" in their name.
 
         returns: lists of json, image and txt file paths in a tuple of the form (json_paths, img_paths, txt_paths)
         """
@@ -26,12 +27,13 @@ class Crawler:
         img_paths = []
         txt_paths = []
         for root, dirs, files in os.walk(self.startpath):
-            for file in files:
-                path = os.path.join(root, file)
-                if file.endswith(".json"):
-                    json_paths.append(path)
-                elif file.endswith(".jpg"):
-                    img_paths.append(path)
-                elif file.endswith(".txt"):
-                    txt_paths.append(path)
+            if "debug" not in root:
+                for file in files:
+                    path = os.path.join(root, file)
+                    if file.endswith(".json"):
+                        json_paths.append(path)
+                    elif file.endswith(".jpg"):
+                        img_paths.append(path)
+                    elif file.endswith(".txt"):
+                        txt_paths.append(path)
         return json_paths, img_paths, txt_paths

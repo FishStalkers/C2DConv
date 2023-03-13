@@ -14,13 +14,14 @@ def main(argv):
     outdir = "./output"
     isSplit = False
     isZip = False
+    isDraw = False
 
     # Make default output directory if it does not exist already
     if not os.path.exists(outdir):
         os.mkdir(outdir)
 
     # Scan for arguments and set appropriate variables
-    opts, args = getopt.getopt(argv, "hi:zo:s", ["help", "indir=", "zip", "outdir=", "split"])
+    opts, args = getopt.getopt(argv, "hi:zo:sd", ["help", "indir=", "zip", "outdir=", "split", "draw"])
 
     for opt, arg in opts:
         if opt in ("-h", "--help"):
@@ -42,9 +43,10 @@ Example Usage:
 Options:
     -h, --help              Show this help message and exits
     -z, --zip               Unzips <indir> and all inner zips before converting
-    -i, --indir  <indir>    Place json files and images in <indir> 
-    -o, --outdir <outdir>   Outputs dataset to <outdir>, default is ./output
+    -i, --indir  <indir>    Place json files and images in <indir>, cannot contain "debug" in name
+    -o, --outdir <outdir>   Outputs dataset to <outdir>, default is ./output, cannot contain "debug" in name
     -s, --split             Splits dataset
+    -d, --draw              Draws rotated bounding boxes on images for debugging
             """
             )
             sys.exit()
@@ -56,6 +58,8 @@ Options:
             outdir = arg
         elif opt in ("-s", "--split"):
             isSplit = True
+        elif opt in ("-d", "--draw"):
+            isDraw = True
 
     # Basic error checking
     if not indir:
@@ -90,21 +94,24 @@ Options:
 
     # Create a converter and generate a single dataset from json_paths
     # and img_paths found by the crawler
-    converter = Converter(outpath=outdir)
+    converter = Converter(outpath=outdir, isDraw=isDraw)
     converter.generateSingleDataset(json_paths, img_paths)
 
     # Split dataset if -s or --split flag is set
-    if isSplit:
-        splitter = Splitter(outpath=converter.outpath)
-        splitter.generateSplitDataset()
+    try:
+        if isSplit:
+            splitter = Splitter(outpath=converter.outpath)
+            splitter.generateSplitDataset()
+    except Exception as e:
+        print(e.args[0])
+    finally:
+        # Creates a text file containing the names of all images in the dataset
+        # Needed for receiving Yolov5-OBB specific metrics
+        converter.outputImgNameFile(img_paths)
 
-    # Creates a text file containing the names of all images in the dataset
-    # Needed for receiving Yolov5-OBB specific metrics
-    converter.outputImgNameFile(img_paths)
-
-    # Cleans up the unzipped directory if isZip is True
-    if isZip:
-        unzipper.cleanup()
+        # Cleans up the unzipped directory if isZip is True
+        if isZip:
+            unzipper.cleanup()
 
     print(f'Success: Finished converting "{indir}" to "{converter.outpath}"')
 

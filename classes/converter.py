@@ -3,6 +3,7 @@ import json
 import shutil
 from classes.rotater import Rotater
 from classes.crawler import Crawler
+from classes.drawer import Drawer
 
 
 class Converter:
@@ -13,7 +14,7 @@ class Converter:
     For split datasets see "classes/splitter.py".
     """
 
-    def __init__(self, outpath):
+    def __init__(self, outpath, isDraw):
         """
         Initialize new converter object. Outputs files to "<outpath>/converted".
 
@@ -21,6 +22,7 @@ class Converter:
         returns: None
         """
         self.outpath = outpath + "/converted"
+        self.isDraw = isDraw
 
     def makeOutputDir(self):
         """
@@ -117,11 +119,14 @@ class Converter:
         returns: None
         """
         rotater = Rotater()
+        if self.isDraw:
+            drawer = Drawer(self.outpath)
         for path in json_paths:
             categories, images, annotations = self.parseJson(filepath=path)
             for img_id in images:
                 filename = self.labelTxt_outpath + "/" + images[img_id][:-3] + "txt"
                 lines = []
+                boxes = []
                 for a in annotations[img_id]:
                     cat_id = a[0]
                     rot = a[1]
@@ -129,9 +134,13 @@ class Converter:
                     points = rotater.getPoints(bbox)
                     mid = rotater.getMid(bbox)
                     points = rotater.rotatePolygon(points, rot, mid[0], mid[1])
+                    boxes.append(points)
                     lines.append(self.dotaString(points, categories[cat_id], 1))
+
                 with open(filename, "w") as f:
                     f.writelines(lines)
+                if self.isDraw:
+                    drawer.drawAnnotation(boxes, images[img_id])
 
     def outputImages(self, img_paths):
         """
@@ -191,8 +200,8 @@ class Converter:
         """
         self.makeOutputDir()
         self.makeSingleDir()
-        self.outputLabelTxt(json_paths)
         self.outputImages(img_paths)
+        self.outputLabelTxt(json_paths)
 
         if check:
             self.check()

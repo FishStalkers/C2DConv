@@ -9,6 +9,10 @@ Converts manual annotations created in CVAT that are exported in COCO format to 
 | NOTE: This section is still WIP! |
 | -------------------------------- |
 
+#### Requirements:
+
+    pip install -r requirements.txt
+
 #### Usage:
 
     c2dconv.py -i <indir>                       Convert <indir> to single dataset in ./output
@@ -28,6 +32,7 @@ Converts manual annotations created in CVAT that are exported in COCO format to 
 
     -h, --help              Show this help message and exits
     -z, --zip               Unzips <indir> and all inner zips before converting
-    -i, --indir  <indir>    Place json files and images in <indir>
-    -o, --outdir <outdir>   Outputs dataset to <outdir>, default is ./output
+    -i, --indir  <indir>    Place json files and images in <indir>, cannot contain "debug" in name
+    -o, --outdir <outdir>   Outputs dataset to <outdir>, default is ./output, cannot contain "debug" in name
     -s, --split             Splits dataset
+    -d, --draw              Draws rotated bounding boxes on images for debugging

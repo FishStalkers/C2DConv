@@ -51,7 +51,7 @@ class Unzipper:
 
         returns: None
         """
-        targetdir = os.path.join(self.targetdir, os.path.splitext(file)[0])
+        targetdir = os.path.join(self.targetdir, os.path.splitext(self.file)[0])
 
         for root, dirs, files in os.walk(targetdir):
             for file in files:
