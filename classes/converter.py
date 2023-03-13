@@ -2,6 +2,7 @@ import os
 import json
 import shutil
 from classes.rotater import Rotater
+from classes.crawler import Crawler
 
 
 class Converter:
@@ -52,6 +53,7 @@ class Converter:
             bbox = a["bbox"]
             rot = a["attributes"]["rotation"]
             annotations[img_id].append((cat_id, rot, bbox))
+
         return categories, images, annotations
 
     def yoloString(self, points, cat, diff):
@@ -90,9 +92,18 @@ class Converter:
         with open(os.path.join(self.outpath, "imgnamefile.txt"), "w") as f:
             f.writelines(lines)
 
-    def generateSingleDataset(self, json_paths, img_paths):
+    def check(self):
+        crawler = Crawler(self.outpath)
+        json_paths, img_paths, txt_paths = crawler.crawlPaths()
+
+        if len(img_paths) != len(txt_paths):
+            print(f"Warning: Number of txt files ({len(txt_paths)}) and image files ({len(img_paths)}) does not match")
+
+    def generateSingleDataset(self, json_paths, img_paths, check=True):
         self.makeOutputDir()
         self.makeSingleDir()
         self.outputLabelTxt(json_paths)
         self.outputImages(img_paths)
-        self.outputImgNameFile(img_paths)
+
+        if check:
+            self.check()

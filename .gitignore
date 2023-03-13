@@ -232,4 +232,5 @@ $RECYCLE.BIN/
 VIP*Data*Exports/
 *dataset*
 output/*
+*.zip
 # End of https://www.toptal.com/developers/gitignore/api/python,macos,windows
