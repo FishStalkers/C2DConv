@@ -9,14 +9,17 @@ from classes.unzipper import Unzipper
 
 
 def main(argv):
+    # Initializing default values for arguements
     indir = ""
     outdir = "./output"
     isSplit = False
     isZip = False
 
+    # Make default output directory if it does not exist already
     if not os.path.exists(outdir):
         os.mkdir(outdir)
 
+    # Scan for arguments and set appropriate variables
     opts, args = getopt.getopt(argv, "hi:zo:s", ["help", "indir=", "zip", "outdir=", "split"])
 
     for opt, arg in opts:
@@ -54,6 +57,7 @@ Options:
         elif opt in ("-s", "--split"):
             isSplit = True
 
+    # Basic error checking
     if not indir:
         print("Please specify input directory")
         sys.exit()
@@ -74,23 +78,31 @@ Options:
         print("Input directory must be a directory when not setting -z or --zip")
         sys.exit()
 
+    # Unzips indir if isZip is True and resets indir to the unzippes directory
     if isZip:
         unzipper = Unzipper(file=indir)
         unzipper.unzip()
         indir = unzipper.targetdir
 
+    # Create a crawler and search for json, image, and text files in indir
     crawler = Crawler(startpath=indir)
-    converter = Converter(outpath=outdir)
-
     json_paths, img_paths, txt_paths = crawler.crawlPaths()
+
+    # Create a converter and generate a single dataset from json_paths
+    # and img_paths found by the crawler
+    converter = Converter(outpath=outdir)
     converter.generateSingleDataset(json_paths, img_paths)
 
+    # Split dataset if -s or --split flag is set
     if isSplit:
         splitter = Splitter(outpath=converter.outpath)
         splitter.generateSplitDataset()
 
+    # Creates a text file containing the names of all images in the dataset
+    # Needed for receiving Yolov5-OBB specific metrics
     converter.outputImgNameFile(img_paths)
 
+    # Cleans up the unzipped directory if isZip is True
     if isZip:
         unzipper.cleanup()
 

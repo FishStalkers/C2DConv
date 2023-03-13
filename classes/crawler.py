@@ -2,10 +2,26 @@ import os
 
 
 class Crawler:
+    """
+    General purpose crawler class for crawling directories for json, image and txt files.
+    Can be used to crawl any file structures.
+    """
+
     def __init__(self, startpath):
+        """
+        Initialize new crawler object.
+
+        startpath: path of directory crawl
+        returns: None
+        """
         self.startpath = startpath
 
     def crawlPaths(self):
+        """
+        Crawls the initialized directory for json, image and txt files.
+
+        returns: lists of json, image and txt file paths in a tuple of the form (json_paths, img_paths, txt_paths)
+        """
         json_paths = []
         img_paths = []
         txt_paths = []

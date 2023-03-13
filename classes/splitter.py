@@ -6,11 +6,28 @@ from classes.crawler import Crawler
 
 
 class Splitter:
+    """
+    Takes a dataset in DOTA format and splits it into a train, validation and test sets.
+    """
+
     def __init__(self, outpath):
+        """
+        Initialize new splitter object. Outputs files to "<outpath>/train",
+        "<outpath>/valid" and "<outpath>/test".
+
+        outpath: path of directory to output split dataset
+        returns: None
+        """
         self.outpath = outpath
         self.crawler = Crawler(outpath)
 
     def makeSplitDirs(self):
+        """
+        Creates output directories for train, validation and test sets.
+        Sets self.train_outpath, self.valid_outpath and self.test_outpath.
+
+        returns: None
+        """
         self.train_outpath = self.outpath + "/train"
         self.valid_outpath = self.outpath + "/valid"
         self.test_outpath = self.outpath + "/test"
@@ -31,6 +48,18 @@ class Splitter:
             print(error)
 
     def splitDataset(self, shuffle=True, train_ratio=70, valid_ratio=20, test_ratio=10):
+        """
+        Main driver function for splitting dataset. Splits dataset into train, validation
+        and test sets following a split ratio. Ratio numbers must add up to 100.
+        Dataset is shuffled before splitting if shuffle is True. Images and annotations
+        must match in number 1:1.
+
+        shuffle: whether to shuffle dataset before splitting
+        train_ratio: ratio of files to be placed in train set
+        valid_ratio: ratio of files to be placed in validation set
+        test_ratio: ratio of files to be placed in test set
+        returns: None
+        """
         if train_ratio + valid_ratio + test_ratio != 100:
             raise Exception("Ratio split must add up to 100")
 
@@ -87,5 +116,11 @@ class Splitter:
             print(error)
 
     def generateSplitDataset(self, shuffle=True, train_ratio=70, valid_ratio=20, test_ratio=10):
+        """
+        Main driver function for splitting dataset. Splits dataset into train, validation,
+        and test sets following a split ratio. Ratio numbers must add up to 100.
+
+        returns: None
+        """
         self.makeSplitDirs()
         self.splitDataset(shuffle, train_ratio, valid_ratio, test_ratio)
