@@ -113,7 +113,7 @@ Options:
         if isZip:
             unzipper.cleanup()
 
-    print(f'Success: Finished converting "{indir}" to "{converter.outpath}"')
+    print(f"Success: Finished converting ./{indir} to ./{converter.outpath}")
 
 
 if __name__ == "__main__":
